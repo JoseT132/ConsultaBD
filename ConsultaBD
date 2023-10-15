@@ -1,0 +1,63 @@
+package ConexionBD;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Conexion {
+
+    private Connection conexion = null;
+
+    public void conectar() {
+        try {
+            Class.forName("org.mariadb.jdbc.Driver");
+            try {
+                conexion = DriverManager.getConnection("jdbc:mariadb://localhost:3306/carpinteria", "root", "1111");
+                System.out.println("Conexión establecida.");
+            } catch (SQLException e) {
+                System.out.println("Error al establecer la conexión: " + e.getMessage());
+            }
+        } catch (ClassNotFoundException e) {
+            System.out.println("Error al cargar el controlador: " + e.getMessage());
+        }
+    }
+
+    public class ConsultaDatos {
+        private static final String JDBC_URL = "jdbc:mariadb://localhost:3306/carpinteria";
+        private static final String usuario = "root";
+        private static final String contrasenia = "1111";
+
+        public List<String> fetchDataFromDatabase() {
+            List<String> resultList = new ArrayList<>();
+
+            try (Connection connection = DriverManager.getConnection(JDBC_URL, usuario, contrasenia)) {
+                String sqlQuery = "SELECT columna FROM carpinteria";
+                PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+
+                ResultSet resultSet = preparedStatement.executeQuery();
+
+                while (resultSet.next()) {
+                    String result = resultSet.getString("columna");
+                    resultList.add(result);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            return resultList;
+        }
+//Desplegar lista
+        public static void main(String[] args) {
+            ConsultaDatos consultaDatos = new Conexion().new ConsultaDatos();
+            List<String> resultList = consultaDatos.fetchDataFromDatabase();
+
+            for (String result : resultList) {
+                System.out.println(result);
+            }
+        }
+    }
+}
